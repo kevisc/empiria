@@ -197,6 +197,19 @@ than a sequence of disconnected applets. This directly targets the structure
 the reform literature identifies as the learning objective (Cobb, 2007; Tintle
 et al., 2015).
 
+**Modular composition invites customization and independent exploration.**
+Because activities are assembled from interchangeable parts rather than
+delivered as fixed applets, a student is not confined to a scripted task: a
+patch can be rewired, one distribution or estimator swapped for another, a
+parameter nudged so that the downstream consequences propagate visibly, or
+something the instructor never specified built from scratch. This open-ended,
+constructionist mode—understanding by building and tinkering (Papert,
+1980)—is supported directly by the dataflow canvas and by the analog-computing
+intuition it inherits: a model is something one assembles from manipulable
+parts and operates, not a result one reads off. The visual immediacy of the
+per-node displays makes such exploration legible, because a change made
+anywhere is immediately visible everywhere downstream.
+
 These principles are operationalized in sixteen bundled lessons, each a
 self-contained worksheet consisting of a patch plus an explanatory note, and a
 four-step guided tour (Law of Large Numbers → bootstrap → *t*-test →
@@ -272,23 +285,35 @@ lessons, and the documentation are in the public repository at
 
 # Limitations and future work
 
-Empiria has not yet been subjected to a controlled classroom evaluation; the
-evidence offered here concerns the tool's design and its numerical correctness,
-not learning outcomes. We are planning a within-instructor, between-section
-comparison in an introductory course, contrasting an Empiria-augmented
-condition against a matched condition using comparable static and applet-based
-visualizations, with sampling-variability and inference subscales of a
-validated assessment as primary outcomes together with a transfer task. The
-most plausible adoption obstacle is *activation cost*: although there is nothing
-to install, a node-and-cable interface is unfamiliar, and our deployment plan
-therefore pairs the tool with the guided tour and the bundled lesson patches. A
-second risk is that the visual immediacy of the modules invites
-disproportionate class time relative to analytic content; the suggested
-integration is explicitly additive to, not a replacement for, a standard
-workflow. Finally, confidence intervals for proportions currently use the
-normal (Wald) form, and the bootstrap is validated by its coverage behavior and
-by exact tests of its components rather than by a value-for-value match to a
-specific resampling implementation.
+Empiria's contribution is a design: an interaction model grounded in
+established findings about manipulable visualization and simulation-based
+reasoning, paired with auditable numerics and frictionless, reproducible
+sharing. Its defining affordances—visual, analog-computing-inspired, and
+modular—are intended to support not only guided activities but also the kind of
+open-ended, learner-directed exploration in which a student customizes a patch,
+substitutes one component for another, and discovers a result by building and
+tinkering rather than by following a script. These affordances are the basis on
+which we expect the tool to be useful, and they are available to instructors
+and students today.
+
+A formal study of classroom learning outcomes is the natural next step, and one
+we have not yet carried out. We are designing a within-instructor,
+between-section comparison in an introductory course—contrasting an
+Empiria-augmented condition against a matched condition that uses comparable
+static and applet-based visualizations, with sampling-variability and inference
+subscales of a validated assessment, together with a transfer task, as
+outcomes—to test whether these affordances translate into measurable gains.
+
+Two practical considerations are worth noting for adopters. Because a
+node-and-cable interface is initially unfamiliar, the bundled guided tour and
+lesson patches are designed to lower the activation cost and to give students a
+scaffold from which to begin tinkering; and because the modules are visually
+engaging, the suggested classroom integration is additive to, rather than a
+replacement for, a standard analytic workflow. On the technical side,
+confidence intervals for proportions currently use the normal (Wald) form, and
+the bootstrap is validated by its coverage behavior and by exact tests of its
+components rather than by a value-for-value match to a specific resampling
+implementation.
 
 # Conclusion
 
@@ -328,6 +353,8 @@ Garfield, J., & Ben-Zvi, D. (2009). Helping students develop statistical reasoni
 Konold, C., & Lehrer, R. (2008). Technology and mathematics education: An essay in honor of Jim Kaput. In L. D. English (Ed.), *Handbook of International Research in Mathematics Education* (2nd ed.). Routledge.
 
 Matsumoto, M., & Nishimura, T. (1998). Mersenne Twister: A 623-dimensionally equidistributed uniform pseudo-random number generator. *ACM Transactions on Modeling and Computer Simulation*, 8(1), 3–30. <https://doi.org/10.1145/272991.272995>
+
+Papert, S. (1980). *Mindstorms: Children, Computers, and Powerful Ideas*. Basic Books.
 
 Press, W. H., Teukolsky, S. A., Vetterling, W. T., & Flannery, B. P. (2007). *Numerical Recipes: The Art of Scientific Computing* (3rd ed.). Cambridge University Press.
 
