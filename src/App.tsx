@@ -17,6 +17,7 @@ import { Graph } from "./engine/graph.ts";
 import { NODE_DEFS } from "./engine/nodes.ts";
 import { EngineCtx } from "./engineCtx.ts";
 import NodeView, { type NodeData } from "./NodeView.tsx";
+import Welcome from "./Welcome.tsx";
 import { applyPatch, buildPatch, type Patch } from "./patch.ts";
 import { b64decode, b64encode, download } from "./io.ts";
 import { LESSONS, type LessonStep } from "./lessons.ts";
@@ -92,6 +93,14 @@ export default function App() {
   const [light, setLight] = useState(false);
   const [projector, setProjector] = useState(false);
   const [tour, setTour] = useState<{ steps: LessonStep[]; i: number } | null>(null);
+  const [welcomeOpen, setWelcomeOpen] = useState(
+    () => !localStorage.getItem("empiria:seen-welcome"),
+  );
+
+  const closeWelcome = useCallback(() => {
+    localStorage.setItem("empiria:seen-welcome", "1");
+    setWelcomeOpen(false);
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = light ? "light" : "dark";
@@ -280,6 +289,15 @@ export default function App() {
 
   const newPatch = useCallback(() => loadPatchObj(starterPatch()), [loadPatchObj]);
 
+  const startTour = useCallback(() => {
+    const t = LESSONS.find((l) => l.id === "tour");
+    if (t?.steps?.length) {
+      setTour({ steps: t.steps, i: 0 });
+      loadPatchObj(structuredClone(t.steps[0].patch));
+    }
+    closeWelcome();
+  }, [loadPatchObj, closeWelcome]);
+
   // First load: a shared #p= link wins, else the last autosaved session, else
   // the welcome starter patch.
   const initialized = useRef(false);
@@ -342,9 +360,13 @@ export default function App() {
 
   return (
     <EngineCtx.Provider value={ctxValue}>
+      {welcomeOpen && <Welcome onClose={closeWelcome} onStartTour={startTour} />}
       <div className="app">
         <header className="toolbar">
           <strong className="brand">Empiria</strong>
+          <button onClick={() => setWelcomeOpen(true)} title="Welcome, tour & help">
+            ? Help
+          </button>
           <button
             onClick={() => {
               runningRef.current = !runningRef.current;
