@@ -22,9 +22,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - run: npm ci
       - run: npm test # numerics vs R, engine behaviour, lesson patches
       - run: npm run build
