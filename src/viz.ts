@@ -89,7 +89,7 @@ function axes(
   ctx.stroke();
 
   ctx.fillStyle = THEME.muted;
-  ctx.font = "8px ui-monospace, monospace";
+  ctx.font = "9px ui-monospace, monospace";
   const ny = opts.yticks ?? 4;
   ctx.textAlign = "right";
   ctx.textBaseline = "middle";
@@ -217,7 +217,7 @@ function drawSample(
   ctx.stroke();
 
   ctx.fillStyle = THEME.muted;
-  ctx.font = "9px ui-monospace, monospace";
+  ctx.font = "10px ui-monospace, monospace";
   ctx.fillText(`n=${n}  bars: empirical · curve: theory`, p.x0 + 2, p.y0 + 8);
 }
 
@@ -232,9 +232,19 @@ function tPdf(x: number, df: number): number {
 export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
   const node = graph.nodes.get(id);
   if (!node) return;
+  // Render at device resolution for crisp text/lines on HiDPI screens, while
+  // drawing in logical (CSS) coordinates.
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = canvas.clientWidth || 264;
+  const h = canvas.clientHeight || 150;
+  const bw = Math.round(w * dpr);
+  const bh = Math.round(h * dpr);
+  if (canvas.width !== bw || canvas.height !== bh) {
+    canvas.width = bw;
+    canvas.height = bh;
+  }
   const ctx = canvas.getContext("2d")!;
-  const w = canvas.width;
-  const h = canvas.height;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   clear(ctx, w, h);
 
   switch (node.type) {
@@ -271,7 +281,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       if (st.hist.length === 0) break;
       drawHist(ctx, w, h, st.hist, THEME.accent);
       ctx.fillStyle = THEME.muted;
-      ctx.font = "10px ui-monospace, monospace";
+      ctx.font = "11px ui-monospace, monospace";
       ctx.fillText(`combined · n=${st.hist.length}`, 32, 14);
       break;
     }
@@ -294,7 +304,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       }
       ctx.stroke();
       ctx.fillStyle = THEME.muted;
-      ctx.font = "9px ui-monospace, monospace";
+      ctx.font = "10px ui-monospace, monospace";
       ctx.fillText(`latest=${buf[buf.length - 1].toFixed(2)}  (time →)`, p.x0 + 2, p.y0 + 8);
       break;
     }
@@ -325,7 +335,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       ctx.arc(p.px(Math.max(xlo, Math.min(xhi, st.lastX))), p.py(st.lastY), 3, 0, 2 * Math.PI);
       ctx.fill();
       ctx.fillStyle = THEME.muted;
-      ctx.font = "9px ui-monospace, monospace";
+      ctx.font = "10px ui-monospace, monospace";
       ctx.fillText("y = a·f(x) + b", p.x0 + 2, p.y0 + 8);
       break;
     }
@@ -334,7 +344,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       if (st.hist.length === 0) break;
       drawHist(ctx, w, h, st.hist, THEME.accent);
       ctx.fillStyle = THEME.muted;
-      ctx.font = "10px ui-monospace, monospace";
+      ctx.font = "11px ui-monospace, monospace";
       ctx.fillText(`+ N(0, ${Number(node.params.sigma).toFixed(2)})`, 32, 14);
       break;
     }
@@ -454,18 +464,18 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
         const pv = node.outputs.p?.[0] ?? 1;
         const rej = node.outputs.reject?.[0] === 1;
         ctx.fillStyle = THEME.ink;
-        ctx.font = "bold 11px ui-monospace, monospace";
+        ctx.font = "bold 12px ui-monospace, monospace";
         ctx.fillText(
           `t=${r.t.toFixed(2)} p=${pv < 1e-3 ? pv.toExponential(1) : pv.toFixed(3)}`,
           p.x0 + 2,
           p.y0 + 9,
         );
         ctx.fillStyle = rej ? THEME.bad : THEME.ok;
-        ctx.font = "bold 10px ui-monospace, monospace";
+        ctx.font = "bold 11px ui-monospace, monospace";
         ctx.fillText(rej ? "● REJECT H₀" : "● n.s.", p.x0 + 2, p.y0 + 21);
       }
       ctx.fillStyle = THEME.muted;
-      ctx.font = "8px ui-monospace, monospace";
+      ctx.font = "9px ui-monospace, monospace";
       ctx.fillText("solid: exact t · dashed: normal", p.x0 + 2, p.y0 + p.h - 3);
       break;
     }
@@ -513,7 +523,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
         ctx.lineTo(p.px(xhi), p.py(f.intercept + f.slope * xhi));
         ctx.stroke();
         ctx.fillStyle = THEME.muted;
-        ctx.font = "9px ui-monospace, monospace";
+        ctx.font = "10px ui-monospace, monospace";
         ctx.fillText(`β=${f.slope.toFixed(3)}  R²=${f.r2.toFixed(3)}`, p.x0 + 2, p.y0 + 8);
       }
       break;
@@ -554,7 +564,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
             ctx.fillStyle = alpha(THEME.accent, 0.12 + 0.8 * a);
             ctx.fillRect(6 + c * gw, 6 + r * gh, gw - 2, gh - 2);
             ctx.fillStyle = THEME.ink;
-            ctx.font = "10px ui-monospace, monospace";
+            ctx.font = "11px ui-monospace, monospace";
             ctx.fillText(String(mat[r][c]), 6 + c * gw + 4, 6 + r * gh + 13);
           }
         }
@@ -581,7 +591,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       }
       drawHist(ctx, w, h, st.hist, THEME.series2);
       ctx.fillStyle = THEME.muted;
-      ctx.font = "9px ui-monospace, monospace";
+      ctx.font = "10px ui-monospace, monospace";
       ctx.fillText(`${st.hist.length} batch means · n=${Number(node.params.n)}`, 32, 14);
       break;
     }
@@ -614,7 +624,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       ctx.lineTo(bx + bw * al, by + bh + 3);
       ctx.stroke();
       ctx.fillStyle = THEME.muted;
-      ctx.font = "8px ui-monospace, monospace";
+      ctx.font = "9px ui-monospace, monospace";
       ctx.fillText(`α=${al}`, bx + bw * al + 2, by - 5);
       break;
     }
@@ -649,7 +659,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
         ctx.fill();
       }
       ctx.fillStyle = THEME.muted;
-      ctx.font = "9px ui-monospace, monospace";
+      ctx.font = "10px ui-monospace, monospace";
       ctx.fillText("sample vs Normal q", p.x0 + 2, p.y0 + 8);
       break;
     }
@@ -750,7 +760,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
         ctx.fill();
       }
       ctx.fillStyle = THEME.muted;
-      ctx.font = "9px ui-monospace, monospace";
+      ctx.font = "10px ui-monospace, monospace";
       ctx.fillText(`median ${med.toFixed(2)} · IQR ${iqr.toFixed(2)}`, p.x0 + 2, p.y0 + 9);
       break;
     }
@@ -797,7 +807,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       }
       ctx.stroke();
       ctx.fillStyle = THEME.muted;
-      ctx.font = "9px ui-monospace, monospace";
+      ctx.font = "10px ui-monospace, monospace";
       ctx.fillText("solid: empirical · dashed: Normal", p.x0 + 2, p.y0 + 9);
       break;
     }
@@ -851,7 +861,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
         ctx.stroke();
       }
       ctx.fillStyle = THEME.muted;
-      ctx.font = "8px ui-monospace, monospace";
+      ctx.font = "9px ui-monospace, monospace";
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
       for (const t of [lo, (lo + hi) / 2, hi]) ctx.fillText(fmtTick(t), px(t), topM + ph + 1);
@@ -859,7 +869,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
       ctx.textBaseline = "alphabetic";
       const cov = st.total > 0 ? st.covered / st.total : 0;
       ctx.fillStyle = THEME.ink;
-      ctx.font = "bold 11px ui-monospace, monospace";
+      ctx.font = "bold 12px ui-monospace, monospace";
       ctx.fillText(`coverage ${(cov * 100).toFixed(0)}% (${st.covered}/${st.total})`, left + 2, 12);
       break;
     }
@@ -893,7 +903,7 @@ export function drawNode(canvas: HTMLCanvasElement, graph: Graph, id: string) {
         ctx.fillRect(p.x0 + i * bw + 2, Math.min(y, mid), bw - 4, Math.abs(y - mid));
       }
       ctx.fillStyle = THEME.muted;
-      ctx.font = "9px ui-monospace, monospace";
+      ctx.font = "10px ui-monospace, monospace";
       ctx.fillText(`ρ(1)=${(rhos[0] ?? 0).toFixed(2)}  (lag →)`, p.x0 + 2, p.y0 + 8);
       break;
     }

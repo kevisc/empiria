@@ -111,7 +111,13 @@ export default function App() {
     document.documentElement.dataset.projector = projector ? "on" : "off";
   }, [projector]);
   const runningRef = useRef(true);
-  const speedRef = useRef(2);
+  // Clock speed as a fractional ticks-per-frame rate so the slow end can reach
+  // ~1 tick/sec (readable) while the fast end fills thousands/sec.
+  const SPEED_DEFAULT = 60;
+  const rateFor = (s: number) => 0.015 * Math.pow(3333, s / 100); // 0.015 → 50 t/frame
+  const rateRef = useRef(rateFor(SPEED_DEFAULT));
+  const accRef = useRef(0);
+  const [speed, setSpeed] = useState(SPEED_DEFAULT);
   const counter = useRef(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const rfInstance = useRef<ReactFlowInstance | null>(null);
@@ -345,7 +351,14 @@ export default function App() {
   useEffect(() => {
     let raf = 0;
     const loop = () => {
-      if (runningRef.current) graph.tick(speedRef.current);
+      if (runningRef.current) {
+        accRef.current += rateRef.current;
+        const n = Math.floor(accRef.current);
+        if (n > 0) {
+          graph.tick(Math.min(n, 2000));
+          accRef.current -= n;
+        }
+      }
       setFrame((f) => (f + 1) % 1_000_000);
       raf = requestAnimationFrame(loop);
     };
@@ -380,11 +393,21 @@ export default function App() {
             speed
             <input
               type="range"
-              min={1}
-              max={50}
-              defaultValue={2}
-              onChange={(e) => (speedRef.current = Number(e.target.value))}
+              min={0}
+              max={100}
+              value={speed}
+              onChange={(e) => {
+                const s = Number(e.target.value);
+                setSpeed(s);
+                rateRef.current = rateFor(s);
+              }}
             />
+            <span className="speed-readout">
+              {(() => {
+                const tps = rateFor(speed) * 60;
+                return tps < 10 ? `${tps.toFixed(1)}/s` : `${Math.round(tps)}/s`;
+              })()}
+            </span>
           </label>
           <span className="sep" />
           <select
