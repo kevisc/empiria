@@ -64,7 +64,7 @@ These assert that the *system* behaves correctly, not just individual formulas:
 - A patch is plain JSON (parameters, wiring, master seed). Loading it on any machine reconstructs identical initial conditions, and the simulation is computed in IEEE-754 double precision with no platform-specific code paths.
 - **Independent audit procedure for a worked result.** Open any patch, set the master seed, run it, and use a node's **⬇ CSV** to export its buffer. Load that CSV in R/Python and recompute the statistic (`t.test`, `lm`, `chisq.test`, …): it reproduces Empiria's on-screen value to six decimals, and the same seed on a different machine yields a byte-identical CSV.
 
-## Known limitations (stated honestly)
+## Known limitations
 
 - The BCa bootstrap is validated by its **coverage behaviour** and by exact tests of its components (`z₀` via the normal quantile, the jackknife acceleration), not by a value-for-value match to `boot::boot.ci`, because that would require reproducing R's resampling RNG stream. Its percentile/CI behaviour is checked in the engine tests.
 - Confidence intervals use the **t** distribution (exact at small *n*); intervals for proportions use the normal/Wald form where applicable.
