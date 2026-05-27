@@ -16,8 +16,13 @@ authors:
     orcid: "https://orcid.org/0000-0001-9892-5869"
     affiliation: "Università della Svizzera italiana (USI)"
 version: "2.1.0"
+doi: 10.5281/zenodo.20413213
 date-released: "2026-05-27"
 license: GPL-3.0-or-later
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20413213
+    description: "Concept DOI (resolves to the latest archived version)"
 repository-code: "https://github.com/kevisc/empiria"
 url: "https://kevinschoenholzer.com/empiria/"
 keywords:
