@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use Empiria, please cite it using the metadata below."
+title: "Empiria: A Composable, Browser-Based Environment for Simulation-Based Statistics Education"
+abstract: >-
+  Empiria is a free, open-source, browser-based environment for
+  simulation-based statistics education. It represents the inferential
+  workflow as a composable dataflow graph: small modules ("nodes") are wired
+  together with cables, a global clock advances the computation, and every
+  intermediate quantity updates in real time — optionally beside the live
+  mathematical formula each node computes. Its numerical routines use exact
+  recipes verified against R.
+type: software
+authors:
+  - family-names: Schoenholzer
+    given-names: Kevin
+    orcid: "https://orcid.org/0000-0001-9892-5869"
+    affiliation: "Università della Svizzera italiana (USI)"
+version: "2.1.0"
+date-released: "2026-05-27"
+license: GPL-3.0-or-later
+repository-code: "https://github.com/kevisc/empiria"
+url: "https://kevinschoenholzer.com/empiria/"
+keywords:
+  - statistics education
+  - simulation-based inference
+  - sampling distributions
+  - bootstrap
+  - reproducibility
+  - educational technology
+  - dataflow

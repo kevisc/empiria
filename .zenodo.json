@@ -1,0 +1,30 @@
+{
+  "title": "Empiria: A Composable, Browser-Based Environment for Simulation-Based Statistics Education",
+  "description": "Empiria is a free, open-source, browser-based environment for simulation-based statistics education. It represents the inferential workflow as a composable dataflow graph: small modules (\"nodes\") are wired together with cables, a global clock advances the computation, and every intermediate quantity updates in real time — optionally beside the live mathematical formula each node computes. Numerical routines use exact recipes verified against R. (Distinct from the VCV-Rack synthesizer plugin formerly hosted under this repository name, now released separately as Stochast.)",
+  "upload_type": "software",
+  "license": "GPL-3.0-or-later",
+  "version": "2.1.0",
+  "creators": [
+    {
+      "name": "Schoenholzer, Kevin",
+      "orcid": "0000-0001-9892-5869",
+      "affiliation": "Università della Svizzera italiana (USI)"
+    }
+  ],
+  "keywords": [
+    "statistics education",
+    "simulation-based inference",
+    "sampling distributions",
+    "bootstrap",
+    "reproducibility",
+    "educational technology",
+    "dataflow"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://kevinschoenholzer.com/empiria/",
+      "relation": "isIdenticalTo",
+      "scheme": "url"
+    }
+  ]
+}
