@@ -6,30 +6,25 @@ date: "May 2026"
 
 # Abstract
 
-Reform efforts in statistics education have, for two decades, urged that
-introductory instruction be reorganized around simulation-based reasoning, in
-which students construct a sampling distribution empirically before they meet
-it as a formula. The software that supports this approach, however, is
-typically *siloed*: each applet or visualization addresses a single concept,
-and its output cannot be passed to the next step of an analysis, so the
-data-generating-process → sampling → estimation → inference → diagnostics
-workflow that students must internalize is left implicit. This article
-describes **Empiria**, an open-source, browser-based environment that makes
-that workflow explicit by representing it as a composable dataflow graph:
-students wire small modules together with cables and observe every
-intermediate quantity update in real time. Empiria runs with no installation
-on any modern device, ships sixteen guided lessons and a four-step tour, and
-exports figures, data (CSV), and fully reproducible patches (as files or
-shareable links). Its numerical routines use exact recipes rather than
-normal-theory approximations and are verified against R to machine precision by
-an automated test suite, so the tool is auditable as well as legible. We
-describe the design, the module library, the pedagogical rationale, and the
-verification methodology, and we outline a planned classroom evaluation.
-Empiria is released under GPL-3.0 and is available at
+Simulation-based reasoning—building a sampling distribution empirically before
+meeting it as a formula—is now central to statistics teaching, but the
+supporting software is typically siloed: each applet addresses one concept and
+its output cannot feed the next step, so the workflow students must internalize
+stays implicit. This article describes Empiria, a free, open-source,
+browser-based environment that makes that workflow explicit by representing it
+as a composable dataflow graph: students wire small modules together with
+cables and watch every intermediate quantity update in real time—optionally
+beside the live mathematical formula each node computes. Empiria runs
+with no installation on any modern device, ships sixteen guided lessons and a
+short tour, and exports figures, data, and fully reproducible patches. Its
+closed-form routines are verified against R to machine precision and its
+randomised procedures against published reference values, so the tool is
+auditable as well as legible. It is available at
 <https://kevinschoenholzer.com/empiria/>.
 
-**Keywords:** simulation-based inference; statistics education; sampling
-distributions; bootstrap; reproducibility; educational technology; dataflow
+**Keywords:** Teaching Statistics; simulation-based inference; statistics
+education; sampling distributions; bootstrap; reproducibility; educational
+technology; dataflow
 
 # Introduction
 
@@ -38,26 +33,26 @@ reasoning, rather than closed-form normal-theory derivation, is by now well
 established. Cobb (2007) argued that the curriculum had over-invested in
 analytic derivations at the expense of randomization- and simulation-based
 approaches in which the sampling distribution is built empirically before it
-is named; the simulation-based-inference movement subsequently demonstrated
-measurable gains in students' reasoning about *p*-values and confidence
-intervals (Tintle et al., 2015), and the GAISE College Report codified the
+is named; the simulation-based-inference movement subsequently built curricula
+around that idea (Rossman & Chance, 2014) and reported measurable gains in
+students' reasoning about *p*-values and confidence intervals (Tintle et al.,
+2015), and the GAISE College Report codified the
 corresponding recommendations—foster active learning, use real data, integrate
-technology, and emphasize statistical thinking (American Statistical
-Association, 2016). A sustained research literature documents *why* this is
+technology, and emphasize statistical thinking (American Statistical Association, 2016). A sustained research literature documents *why* this is
 hard: students struggle to form durable intuitions about sampling variability
 and the sampling distribution of an estimator, and they benefit from
-manipulating parameters and observing the consequences in real time (Chance et
-al., 2004; delMas et al., 2007; Garfield & Ben-Zvi, 2009).
+manipulating parameters and observing the consequences in real time (Chance et al., 2004; delMas et al., 2007; Garfield & Ben-Zvi, 2009).
 
 The pedagogical principle is now mainstream; what remains uneven is the
 *toolkit* through which it is delivered. The existing landscape is fragmented.
-Sampling-distribution visualizers address sampling variability (Chance et al.,
-2004; delMas et al., 2007); TinkerPlots supports school-level exploratory
+Sampling-distribution visualizers address sampling variability (Chance et al., 2004; delMas et al., 2007); TinkerPlots supports school-level exploratory
 analysis (Konold & Lehrer, 2008) and CODAP extends this to data science for
 younger learners (Finzer, 2013); NetLogo is the dominant agent-based-modeling
-environment (Wilensky, 1999); and a large number of single-purpose applets
-(for example, the *Rossman/Chance* applet collection and *Seeing Theory*) and
-instructor-built R Shiny dashboards address specific techniques. Each of these
+environment (Wilensky, 1999); StatKey supports a full simulation-based-inference
+curriculum in the browser (Lock et al., 2021); and a large number of
+single-purpose applets (for example, the *Rossman/Chance* collection and
+*Seeing Theory*) and instructor-built R Shiny dashboards address specific
+techniques. Each of these
 tools is effective within its domain, but each is also *self-contained*: the
 output of one cannot be piped into the next analytical step. This matters
 because the workflow students must internalize—data-generating process →
@@ -73,26 +68,30 @@ therefore sits on a single screen, wired together, with every intermediate
 quantity visible and manipulable as it updates. The contributions of the tool,
 and of this article, are: (1) a composable, signal-flow interaction model for
 simulation-based inference that makes the inferential workflow explicit; (2) a
+live mathematical-notation view that renders each module's formula with the
+current values substituted, tying symbolic form to direct manipulation; (3) a
 zero-installation, cross-device implementation with sixteen ready-made lessons
-and a guided tour; and (3) a verification methodology—exact numerical recipes,
-deterministic seeding, and an automated test suite checked against R—that makes
+and a guided tour; and (4) a verification methodology (exact numerical recipes,
+deterministic seeding, and an automated test suite checked against R) that makes
 the tool auditable rather than merely persuasive.
 
 # Background and related tools
 
 Empiria's nearest neighbors are the sampling-distribution visualizers studied
-in the statistics-education literature (Chance et al., 2004; delMas et al.,
-2007), TinkerPlots (Konold & Lehrer, 2008), CODAP (Finzer, 2013), NetLogo
-(Wilensky, 1999), the *Rossman/Chance* and *Seeing Theory* applet collections,
-and the many instructor-authored R Shiny applications. These tools established
+in the statistics-education literature (Chance et al., 2004; delMas et al., 2007), TinkerPlots (Konold & Lehrer, 2008), CODAP (Finzer, 2013), NetLogo
+(Wilensky, 1999), the StatKey tools that accompany a simulation-based-inference
+curriculum (Lock et al., 2021), the *Rossman/Chance* and *Seeing Theory* applet
+collections, and the many instructor-authored R Shiny applications. These tools established
 that dynamic, manipulable visualization supports the construction of sampling
 intuitions, and Empiria builds directly on that finding.
 
 Empiria differs from these precedents in three respects. First, it is a
-*composable signal-flow environment* rather than a single-purpose application:
-the output of any module is a signal that can be routed into any other, so a
-parametric sampler can feed a sampling-window estimator, which can feed a
-hypothesis test or a bootstrap, with no copy-paste or context switch. Second,
+*composable signal-flow environment* rather than a single-purpose application.
+Even free, browser-based simulation tools such as StatKey present one analysis
+per screen; in Empiria the output of any module is a signal that can be routed
+into any other, so a parametric sampler can feed a sampling-window estimator,
+which can feed a hypothesis test or a bootstrap, with no copy-paste or context
+switch. Second,
 it lowers the cost of authoring new teaching material: where a Shiny applet
 requires fluency in R, HTML, and reactive programming, an Empiria activity is
 assembled by wiring existing modules, and a new module is a single function
@@ -114,12 +113,16 @@ its left and output ports on its right; dragging a cable from an output to an
 input establishes a dependency. A global clock advances the graph in
 topological order, and on each tick every node reads its inputs, updates its
 internal state, and renders a small visualization matched to the quantity it
-computes. The result is that a complete analysis is laid out left to right as a
-visible chain—source → transform → statistic → display—and every intermediate
-value is observable as it changes. This interaction model is a deliberate
+computes. A complete analysis is thus laid out left to right as a visible chain
+(source → transform → statistic → display), and every intermediate value is
+observable as it changes (Figure 1). This interaction model is a deliberate
 descendant of the dataflow and analog-computing traditions (visual
 patch-and-cable environments and the differential analyzers that preceded
 digital computation), in which the wiring *is* the program.
+
+![Two-sample comparison assembled on the Empiria canvas](submission/figures/twogroups.png){width=100%}
+
+**Figure 1.** A two-sample comparison assembled on the Empiria canvas. Two independent samplers—each drawing from its own population and showing a live histogram—feed a single test node that overlays the *t* reference distribution and reports the statistic and decision. The analysis is *built* as wired modules rather than invoked as a function call, so the data-generating process → sampling → estimation → inference workflow is laid out left to right with every intermediate quantity visible at once.
 
 The clock speed is adjustable from roughly one tick per second—slow enough to
 watch individual draws accumulate—to several thousand per second for rapid
@@ -142,6 +145,22 @@ into a shareable URL; loading it reconstructs the simulation byte-for-byte on
 any machine. Computation is performed in IEEE-754 double precision with no
 platform-specific code paths, so a worked example is exactly reproducible
 across operating systems and devices.
+
+## Computational footprint
+
+Because Empiria runs entirely in the browser, its only requirement is a current
+browser: there is no server, and after the initial download—a single static
+bundle of roughly 0.4 MB (about 130 KB gzipped)—it runs offline. The numerical
+workload is light. On a contemporary laptop (Apple M4, single-threaded) the
+engine sustains on the order of 2.6 million ticks per second for a typical
+few-node patch and tens of thousands per second for a busy canvas of around
+sixty nodes, with memory in the tens of megabytes; the per-node cost is well
+under a microsecond and grows linearly with the number of nodes. Because the
+interactive clock is capped at a few thousand ticks per second, the on-screen
+frame rate—not the arithmetic—is the limiting factor, which leaves ample
+headroom on the low-power hardware (Chromebooks, tablets) typical of
+classrooms. The benchmark is a short script in the repository, so these figures
+can be reproduced and checked on any machine.
 
 ## The module library
 
@@ -170,14 +189,14 @@ the true value.
 
 # Pedagogical rationale
 
-Empiria's design rests on three findings from the statistics-education and
-mathematical-cognition literatures.
+Empiria's design draws on established findings from the statistics-education and
+mathematical-cognition literatures, which it operationalizes through the
+principles below.
 
 **Dynamic, manipulable visualization supports the construction of sampling
 intuitions.** Students who manipulate parameters and watch sampling
 distributions respond in real time develop more durable inferential intuitions
-than those who encounter the same material as static figures (Chance et al.,
-2004; delMas et al., 2007; Garfield & Ben-Zvi, 2009). Empiria adopts this
+than those who encounter the same material as static figures (Chance et al., 2004; delMas et al., 2007; Garfield & Ben-Zvi, 2009; for a recent review, Gok & Goldstone, 2024). Empiria adopts this
 throughout: every parameter is a control, every estimator is a live trace, and
 every confidence interval is a band that visibly widens and narrows with the
 sample.
@@ -190,25 +209,55 @@ test module that consumes both—so that when the algebraic formula is later
 introduced, each symbol corresponds to a module the student has already
 manipulated.
 
+**Live notation ties manipulation to symbolic form.** A persistent difficulty
+in statistics is that formulas stay inert: a student can read
+*t* = (x̄ − μ₀)/(s/√n) without connecting any symbol to something they can
+change. Empiria can render, beneath every node, the formula that node computes
+in standard mathematical notation, written as a chained equality—the symbolic
+expression, the current values substituted into it, and the result—and updated
+on every tick (Figure 2). Manipulating the patch is therefore reflected
+immediately in the equation: as a sample grows the student watches *s* shrink
+and the denominator *s*/√*n* shrink with it; widening the gap x̄ − μ₀ drives the
+*t*-statistic up; a Transform node shows *y* = 2·*x* + 1 evaluating a specific
+input to a specific output beside the scatter it produces. The same patch can
+thus be read two ways at once—picture-first for intuition and notation-first for
+formalism—so the symbolic layer becomes a manipulable object rather than a
+static artifact, which directly addresses the symbol-grounding gap the
+concrete-to-abstract literature identifies. Because the notation is rendered
+with the browser's native MathML, the feature adds no dependency and no
+meaningful weight.
+
+![The live-notation view: each node's formula with current values substituted](submission/figures/formulas.png){width=100%}
+
+**Figure 2.** The live-notation view (toggled on). Beneath each node, the
+formula it computes is rendered in standard notation with the current values
+substituted in: the Sample node shows its data-generating distribution and
+running estimates, the Transform node shows *y* = 2·*x* + 1 evaluated at a
+specific input, the Noise node shows *y* = *x* + ε with ε ∼ N(0, σ²), and the
+Regress node reports the recovered ŷ = a + b·x and R². As the user changes a
+parameter or rewires the graph, every equation updates on the next tick.
+
 **Composition makes the inferential workflow visible.** Because the output of
 any module is routable into any other, the data-generating process → sampling →
 estimation → inference → diagnostics pipeline is a single wired chain rather
 than a sequence of disconnected applets. This directly targets the structure
-the reform literature identifies as the learning objective (Cobb, 2007; Tintle
-et al., 2015).
+the reform literature identifies as the learning objective (Cobb, 2007; Tintle et al., 2015).
 
 **Modular composition invites customization and independent exploration.**
 Because activities are assembled from interchangeable parts rather than
 delivered as fixed applets, a student is not confined to a scripted task: a
 patch can be rewired, one distribution or estimator swapped for another, a
 parameter nudged so that the downstream consequences propagate visibly, or
-something the instructor never specified built from scratch. This open-ended,
-constructionist mode—understanding by building and tinkering (Papert,
-1980)—is supported directly by the dataflow canvas and by the analog-computing
+something the instructor never specified built from scratch (Figure 3). This open-ended,
+constructionist mode—understanding by building and tinkering (Papert, 1980)—is supported directly by the dataflow canvas and by the analog-computing
 intuition it inherits: a model is something one assembles from manipulable
 parts and operates, not a result one reads off. The visual immediacy of the
 per-node displays makes such exploration legible, because a change made
 anywhere is immediately visible everywhere downstream.
+
+![Building a data-generating process from interchangeable parts](submission/figures/realfit.png){width=100%}
+
+**Figure 3.** Building a data-generating process from interchangeable parts. A uniform predictor (Sample) is passed through a deterministic Transform ($y = 2x + 1$) and a Noise module before a Regress node recovers the relationship online and reports the fitted slope and intercept. Because the model is *assembled* rather than scripted, a student can swap the transform, change the amount of noise, or rewire the graph and watch every downstream view update—the build-and-tinker, analog-computing mode of working the design is meant to invite.
 
 These principles are operationalized in sixteen bundled lessons, each a
 self-contained worksheet consisting of a patch plus an explanatory note, and a
@@ -230,7 +279,7 @@ wires a sampler into a growing sampling window; as the clock runs, the mean
 settles on the population value and the standard error contracts visibly. A
 *bootstrap* activity resamples a fixed dataset and draws the bootstrap
 distribution of a statistic—making the sampling distribution explicit without a
-formula—and reports a bias-corrected and accelerated interval (Efron, 1987). A
+formula—and reports a bias-corrected and accelerated interval (Efron, 1987; Hesterberg, 2015) (Figure 4). A
 *small-sample t-test* activity overlays the exact Student-*t* null distribution
 against the normal approximation, so that students see the normal mislead at
 low degrees of freedom and watch the reject/retain decision flip from sample to
@@ -244,7 +293,13 @@ that the same data are seen four ways at once. In each case the patch is
 seeded, so an instructor can distribute it, have students run it, and be
 confident that every result reproduces.
 
+![Simulation made visible: a bootstrap sampling distribution](submission/figures/bootstrap.png){width=100%}
+
+**Figure 4.** Simulation made visible. A sample drawn from a skewed (exponential) parent is resampled with replacement by the Boot module, whose histogram (magenta) is the bootstrap sampling distribution of the mean, annotated with a bias-corrected and accelerated interval. The sampling distribution is *constructed* empirically and watched as it forms, before any closed-form expression is introduced.
+
 # Numerical correctness and reproducibility
+
+## Verifying the numerics
 
 Because the pedagogy depends on the displayed numbers being correct rather than
 merely plausible, Empiria treats verification as part of the artifact. Where
@@ -274,27 +329,74 @@ seeded JSON, a student can export any node's data to CSV and reproduce the
 statistic in R as an external check; the same patch and seed yield an identical
 export on any machine.
 
-# Availability
+## Development with AI coding assistance
 
-Empiria is released under the GPL-3.0 license. It runs in any modern browser
-with no installation, on laptops, tablets, and Chromebooks alike, and builds to
-a static site. The live application is at <https://kevinschoenholzer.com/empiria/>;
-the source code, the test suite, the verification materials, the bundled
-lessons, and the documentation are in the public repository at
-<https://github.com/kevisc/empiria>.
+Empiria's implementation was carried out with the help of AI coding assistants
+(large language models used as programming aids). We disclose this as a matter
+of scholarly practice, and because it bears on a legitimate concern: software
+produced with substantial machine assistance may contain plausible-looking but
+incorrect numerical behavior, and a reader is right to ask whether the
+displayed statistics can be trusted. The answer here is methodological rather
+than rhetorical. The trustworthiness of Empiria's outputs does not rest on the
+provenance of the code that produces them; it rests on an external verification
+regime that is independent of how the code was written.
+
+Concretely, every numerical routine is checked against an authoritative
+reference implementation—R's statistical functions (`pt`, `qt`, `pchisq`,
+`pnorm`, `qnorm`, `t.test`, `lm`, `chisq.test`, `acf`, `quantile`), the `boot`
+package for the BCa interval, and the canonical Mersenne-Twister test
+vector—to machine precision, with Monte-Carlo tolerances stated explicitly
+where resampling is involved. Those reference values are produced by an
+independent R script that a reviewer can rerun and compare against the literals
+asserted in the test suite, so the check confirms the reference values
+themselves rather than only the tool's internal self-consistency. A test that
+compares to R cannot be satisfied by code that is merely persuasive: it passes
+only if the number is right, whoever or whatever wrote the code.
+
+We also separate authorship from correctness. The statistical methods, the
+choice of exact recipes over normal-theory approximations, the pedagogical
+claims, and the interpretation of every result were specified, reviewed, and
+are vouched for by the author; the AI tools accelerated implementation, they did
+not make statistical decisions, and the author takes full responsibility for
+the software and the manuscript. Because the full audit trail maps each routine
+to its algorithm, citation, reference command, and test, and because the entire
+suite runs from three commands, any reviewer can reproduce the verification in
+minutes rather than taking our word for it.
+
+# Data and code availability
+
+Empiria is released under the GPL-3.0 license and runs in any modern browser
+with no installation. The live application is at
+<https://kevinschoenholzer.com/empiria/>; the source code, the automated test
+suite, the verification materials, the bundled lessons, and the documentation
+are in the public repository at <https://github.com/kevisc/empiria>. The exact
+version described here is tagged in the repository, and a snapshot of that
+version will be archived with a permanent DOI (Zenodo) upon acceptance, so that
+the reviewed software remains citable independently of later development. The
+figures in this article are screenshots of the running application; the patches
+that generate them are included among the bundled lessons.
 
 # Limitations and future work
 
 Empiria's contribution is a design: an interaction model grounded in
 established findings about manipulable visualization and simulation-based
-reasoning, paired with auditable numerics and frictionless, reproducible
-sharing. Its defining affordances—visual, analog-computing-inspired, and
-modular—are intended to support not only guided activities but also the kind of
-open-ended, learner-directed exploration in which a student customizes a patch,
-substitutes one component for another, and discovers a result by building and
-tinkering rather than by following a script. These affordances are the basis on
-which we expect the tool to be useful, and they are available to instructors
-and students today.
+reasoning, paired with auditable numerics and reproducible, shareable patches.
+Its defining affordances are visual, analog-computing-inspired, and modular, and
+they are intended to support guided activities as well as the open-ended,
+learner-directed exploration in which a student customizes a patch, substitutes
+one component for another, and reaches a result by building rather than by
+following a script.
+
+We should be explicit about what this article does not establish. It offers no
+evidence of learning gains from Empiria itself: the pedagogical claims above are
+design rationale, grounded in prior findings about related tools, and whether
+they translate into measurable outcomes is an open empirical question. Reviews
+of simulation tools are a useful corrective here: interactive visualization
+does not by itself guarantee understanding—students can watch a sampling
+distribution narrow and still misread it as a distribution of individual
+values—so the surrounding tasks and design details do much of the work (Gok &
+Goldstone, 2024). The affordances are available to instructors and students
+today, but their educational value remains to be demonstrated.
 
 A formal study of classroom learning outcomes is the natural next step, and one
 we have not yet carried out. We are designing a within-instructor,
@@ -302,7 +404,9 @@ between-section comparison in an introductory course—contrasting an
 Empiria-augmented condition against a matched condition that uses comparable
 static and applet-based visualizations, with sampling-variability and inference
 subscales of a validated assessment, together with a transfer task, as
-outcomes—to test whether these affordances translate into measurable gains.
+outcomes, to test whether these affordances translate into measurable gains.
+That study will be pre-registered, with its hypotheses and analysis plan
+deposited before any data are collected.
 
 Two practical considerations are worth noting for adopters. Because a
 node-and-cable interface is initially unfamiliar, the bundled guided tour and
@@ -321,43 +425,52 @@ Empiria operationalizes the central recommendation of the statistics-education
 reform literature—that students build the sampling distribution before they
 name it—by making the inferential workflow a composable, manipulable object
 rather than a sequence of disconnected applets. By pairing that interaction
-model with exact, independently auditable numerics and frictionless,
-reproducible sharing, it aims to be trustworthy as well as legible: a tool a
-student can learn from and an instructor can verify.
-
-# Acknowledgements
-
-The author thanks the open-source scientific-computing and statistics-education
-communities whose tools and findings shaped this work.
+model with exact, independently auditable numerics and reproducible, shareable
+patches, it aims to be trustworthy as well as legible: a tool a student can
+learn from and an instructor can verify.
 
 # Disclosure statement
 
 The author reports no competing interests. No funding supported this work.
+AI-based coding assistants (large language models) were used as programming
+aids during development of the software. All statistical methods and numerical
+results were specified by the author and verified against independent reference
+implementations, as described in *Numerical correctness and reproducibility*;
+the author takes full responsibility for the content of the software and the
+manuscript.
 
 # References
 
-American Statistical Association. (2016). *Guidelines for Assessment and Instruction in Statistics Education (GAISE) College Report 2016*. American Statistical Association. <https://www.amstat.org/education/gaise>
+1. American Statistical Association, Guidelines for Assessment and Instruction in Statistics Education (GAISE) College Report 2016, *American Statistical Association*, 2016. <https://www.amstat.org/education/gaise>
 
-Chance, B., delMas, R., & Garfield, J. (2004). Reasoning about sampling distributions. In D. Ben-Zvi & J. Garfield (Eds.), *The Challenge of Developing Statistical Literacy, Reasoning, and Thinking* (pp. 295–323). Springer. <https://doi.org/10.1007/1-4020-2278-6_13>
+2. B. Chance, R. delMas, J. Garfield, Reasoning about sampling distributions, in: D. Ben-Zvi, J. Garfield (Eds.), *The Challenge of Developing Statistical Literacy, Reasoning, and Thinking*, Springer, 2004, pp. 295–323. <https://doi.org/10.1007/1-4020-2278-6_13>
 
-Cobb, G. W. (2007). The introductory statistics course: A Ptolemaic curriculum? *Technology Innovations in Statistics Education*, 1(1). <https://doi.org/10.5070/T511000028>
+3. G. W. Cobb, The introductory statistics course: A Ptolemaic curriculum?, *Technology Innovations in Statistics Education*, 1(2007). <https://doi.org/10.5070/T511000028>
 
-delMas, R., Garfield, J., Ooms, A., & Chance, B. (2007). Assessing students' conceptual understanding after a first course in statistics. *Statistics Education Research Journal*, 6(2), 28–58. <https://doi.org/10.52041/serj.v6i2.483>
+4. R. delMas, J. Garfield, A. Ooms, B. Chance, Assessing students' conceptual understanding after a first course in statistics, *Statistics Education Research Journal*, 6(2007), 28–58. <https://doi.org/10.52041/serj.v6i2.483>
 
-Efron, B. (1987). Better bootstrap confidence intervals. *Journal of the American Statistical Association*, 82(397), 171–185. <https://doi.org/10.1080/01621459.1987.10478410>
+5. B. Efron, Better bootstrap confidence intervals, *Journal of the American Statistical Association*, 82(1987), 171–185. <https://doi.org/10.1080/01621459.1987.10478410>
 
-Finzer, W. (2013). The data science education dilemma. *Technology Innovations in Statistics Education*, 7(2). <https://doi.org/10.5070/T572013891>
+6. W. Finzer, The data science education dilemma, *Technology Innovations in Statistics Education*, 7(2013). <https://doi.org/10.5070/T572013891>
 
-Garfield, J., & Ben-Zvi, D. (2009). Helping students develop statistical reasoning: Implementing a statistical reasoning learning environment. *Teaching Statistics*, 31(3), 72–77. <https://doi.org/10.1111/j.1467-9639.2009.00363.x>
+7. J. Garfield, D. Ben-Zvi, Helping students develop statistical reasoning: Implementing a statistical reasoning learning environment, *Teaching Statistics*, 31(2009), 72–77. <https://doi.org/10.1111/j.1467-9639.2009.00363.x>
 
-Konold, C., & Lehrer, R. (2008). Technology and mathematics education: An essay in honor of Jim Kaput. In L. D. English (Ed.), *Handbook of International Research in Mathematics Education* (2nd ed.). Routledge.
+8. S. Gok, R. L. Goldstone, How do students reason about statistical sampling with computer simulations? An integrative review from a grounded cognition perspective, *Cognitive Research: Principles and Implications*, 9(2024), 33. <https://doi.org/10.1186/s41235-024-00561-x>
 
-Matsumoto, M., & Nishimura, T. (1998). Mersenne Twister: A 623-dimensionally equidistributed uniform pseudo-random number generator. *ACM Transactions on Modeling and Computer Simulation*, 8(1), 3–30. <https://doi.org/10.1145/272991.272995>
+9. T. C. Hesterberg, What teachers should know about the bootstrap: Resampling in the undergraduate statistics curriculum, *The American Statistician*, 69(2015), 371–386. <https://doi.org/10.1080/00031305.2015.1089789>
 
-Papert, S. (1980). *Mindstorms: Children, Computers, and Powerful Ideas*. Basic Books.
+10. C. Konold, R. Lehrer, Technology and mathematics education: An essay in honor of Jim Kaput, in: L. D. English (Ed.), *Handbook of International Research in Mathematics Education*, 2nd ed., Routledge, 2008.
 
-Press, W. H., Teukolsky, S. A., Vetterling, W. T., & Flannery, B. P. (2007). *Numerical Recipes: The Art of Scientific Computing* (3rd ed.). Cambridge University Press.
+11. R. H. Lock, P. F. Lock, K. Lock Morgan, E. F. Lock, D. F. Lock, *Statistics: Unlocking the Power of Data*, 3rd ed., Wiley, 2021. StatKey: <https://www.lock5stat.com/statkey>.
 
-Tintle, N., Chance, B., Cobb, G., Roy, S., Swanson, T., & VanderStoep, J. (2015). Combating anti-statistical thinking using simulation-based methods throughout the undergraduate curriculum. *The American Statistician*, 69(4), 362–370. <https://doi.org/10.1080/00031305.2015.1081619>
+12. M. Matsumoto, T. Nishimura, Mersenne Twister: A 623-dimensionally equidistributed uniform pseudo-random number generator, *ACM Transactions on Modeling and Computer Simulation*, 8(1998), 3–30. <https://doi.org/10.1145/272991.272995>
 
-Wilensky, U. (1999). *NetLogo*. Center for Connected Learning and Computer-Based Modeling, Northwestern University. <http://ccl.northwestern.edu/netlogo/>
+13. S. Papert, *Mindstorms: Children, Computers, and Powerful Ideas*, Basic Books, 1980.
+
+14. W. H. Press, S. A. Teukolsky, W. T. Vetterling, B. P. Flannery, *Numerical Recipes: The Art of Scientific Computing*, 3rd ed., Cambridge University Press, 2007.
+
+15. A. Rossman, B. Chance, Using simulation-based inference for learning introductory statistics, *WIREs Computational Statistics*, 6(2014), 211–221. <https://doi.org/10.1002/wics.1302>
+
+16. N. Tintle, B. Chance, G. Cobb, S. Roy, T. Swanson, J. VanderStoep, Combating anti-statistical thinking using simulation-based methods throughout the undergraduate curriculum, *The American Statistician*, 69(2015), 362–370. <https://doi.org/10.1080/00031305.2015.1081619>
+
+17. U. Wilensky, *NetLogo*, Center for Connected Learning and Computer-Based Modeling, Northwestern University, 1999. <http://ccl.northwestern.edu/netlogo/>

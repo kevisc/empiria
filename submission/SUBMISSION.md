@@ -1,51 +1,76 @@
-# Submission package — TISE
+# Submission package — Teaching Statistics (Wiley)
 
-Target journal: **Technology Innovations in Statistics Education (TISE)**,
-hosted on UC eScholarship — <https://escholarship.org/uc/uclastat_cts_tise>.
-TISE is open access (no author fees) and peer reviewed; it publishes articles
-on the use of technology in statistics education. Submissions are made through
-the eScholarship submission system; manuscripts follow APA style.
+Target journal: **Teaching Statistics** (Wiley) — a refereed, **double-anonymized**
+journal for teachers of statistics and data science at any level; emphasis on
+good practice in teaching, written accessibly for an international audience.
+
+**Submit online** via the Wiley Authors portal:
+<https://authors.wiley.com/journal/TEST> (system: <https://wiley.atyponrex.com/journal/TEST>).
+Technical help: Wiley Research Exchange Author Help / submissionhelp@wiley.com.
+
+**Editor** (offline submissions): Rhys Jones, Editor, *Teaching Statistics*,
+MMU, Geoffrey Manton Building, 4 Rosamond Street West, Manchester M15 6LL, UK —
+minkywhales@hotmail.com.
+
+> Chosen over TISE because Teaching Statistics is Wiley-published, indexed, and
+> more widely recognized, while still accepting a teaching-tool / good-practice
+> article that does not require a classroom-outcomes study.
 
 ## Files in this package
 
 | File | Purpose |
 |---|---|
-| [`../paper.md`](../paper.md) | The manuscript (Markdown source; APA author–year citations and reference list). |
-| [`title_page.md`](title_page.md) | Title, author, affiliation, ORCID, keywords, disclosures, availability. |
-| [`cover_letter.md`](cover_letter.md) | Cover letter to the editors. |
-| `../VERIFICATION.md`, `../GUIDE.md` | Supporting materials reviewers may consult (verification methodology; user guide). |
+| [`../paper.md`](../paper.md) | The manuscript (Markdown source). |
+| [`figures/`](figures/) | Figures 1–4 as separate high-resolution PNGs (also placed in the text). |
+| [`supporting_information.md`](supporting_information.md) | **Supporting Information** appendix (validation, benchmark, reproducibility, AI-use, module library, lessons) — upload as Supporting Information. Built to `.pdf`/`.docx`. |
+| [`title_page.md`](title_page.md) | Title, author, affiliation, email, corresponding author, ORCID, keywords, **Acknowledgements**, disclosures (incl. AI use) — submitted **separately** from the anonymized manuscript. |
+| [`cover_letter.md`](cover_letter.md) | Cover letter to the editor. |
+| `../VERIFICATION.md`, `../GUIDE.md` | Supporting materials reviewers may consult. |
 
-## Building the manuscript for upload (PDF / DOCX)
+## House style (applied)
 
-The manuscript is maintained in Markdown so it stays in sync with the
-repository. Produce a submission file with pandoc. **Word (`.docx`) is
-recommended**: it renders the statistical symbols (χ², ρ, →, √, ≈) using the
-word processor's fonts and is convenient for reviewer comments.
+- **Length:** no fixed limit; focused writing. Sections with an **Introduction**
+  and **Conclusion**; single-spaced, 12-pt.
+- **Title** ≤ 50 words; **abstract** ≤ 150 words *(current: ~140)*.
+- **Keywords:** must include **"Teaching Statistics"** *(added, listed first)*.
+- **References:** **in-text citations use author names + dates** (author–year,
+  e.g. "Cobb (2007)", "(Tintle et al., 2015)"); the **reference list is
+  alphabetical by lead author and numbered**, initials-first, with DOIs.
+  *(Reference style per the journal's March-2025 guidelines; applied throughout.)*
+- **Footnotes:** none (not permitted).
+- **Figures:** numbered, with legends, placed in the text **and** provided as
+  separate PNG files in `figures/`; uploaded at high resolution.
+- **Acknowledgements:** on the **title page**, not in the manuscript body.
+- **Double-anonymized:** the manuscript carries no author-identifying text;
+  the title page is a separate file.
+- **AI:** disclosed in the manuscript's *Disclosure statement* and on the title
+  page, per Wiley's AI Principles / "Using AI tools in your writing".
+
+## Building the manuscript for upload
 
 ```sh
-# Recommended: Word
-pandoc paper.md -o manuscript.docx
+# Full (non-anonymized) reference copy
+pandoc paper.md -o submission/manuscript.docx
 
-# Optional: PDF — requires a main font that covers Greek/math glyphs;
-# otherwise symbols such as χ² and → may render blank.
-pandoc paper.md -o manuscript.pdf --pdf-engine=xelatex \
-  -V mainfont="Arial Unicode MS" -V geometry:margin=1in
+# Anonymized manuscript for double-anonymized review:
+# strip the YAML author and replace the two identifying URLs.
+sed -e '/^author:/d' \
+    -e 's#https://kevinschoenholzer.com/empiria/#[live tool — withheld for review]#g' \
+    -e 's#https://github.com/kevisc/empiria#[repository — withheld for review]#g' \
+    paper.md > /tmp/paper_blinded.md
+pandoc /tmp/paper_blinded.md -o submission/manuscript_blinded.docx
 ```
 
-## Pre-submission checklist
+(Acknowledgements already live only on the title page, so they need no redaction.)
 
-- [ ] Abstract ≤ ~250 words; keywords present.
-- [ ] All in-text citations are author–year and appear in the reference list (and vice versa); no raw `[@key]` markup remains.
-- [ ] References in APA 7 style with DOIs/URLs.
-- [ ] Title page kept **separate** from the manuscript; if the review is masked, also produce an anonymized manuscript PDF (remove the author/affiliation/ORCID block and the repository URLs that identify the author, replacing them with "[withheld for review]").
-- [ ] Live tool reachable: <https://kevinschoenholzer.com/empiria/>.
-- [ ] Repository public and test suite green: <https://github.com/kevisc/empiria> (`npm test`).
-- [ ] Figures (if added) exported at sufficient resolution via the in-app "Figure" export.
-- [ ] Cover letter addressed to the editors; competing-interests and funding statements included.
+## Submission preparation checklist
 
-## Note on masked review
-
-If TISE requests masked review, generate the anonymized manuscript from a copy
-of `paper.md` with the `author`, `affiliation`, and `orcid` fields removed and
-the two repository/live URLs replaced by "[withheld for review]"; submit the
-full `title_page.md` separately through the system's metadata fields.
+- [ ] Not previously published / not under consideration elsewhere.
+- [ ] Title ≤ 50 words; abstract ≤ 150 words; **"Teaching Statistics"** among the keywords.
+- [ ] In-text citations are author–year and match the numbered, alphabetized
+      reference list (and vice versa); no bracket-number citations remain.
+- [ ] No footnotes; sections include Introduction and Conclusion; single-spaced, 12-pt.
+- [ ] Figures numbered with legends, in text and uploaded as separate high-res PNGs.
+- [ ] **Anonymized** manuscript uploaded; **separate title page** with full details + Acknowledgements; no identifying text/URLs in the manuscript.
+- [ ] Disclosure statement includes competing-interests, funding, and **AI-use**; title page repeats the AI-use disclosure.
+- [ ] Live tool reachable: <https://kevinschoenholzer.com/empiria/>; repo green: <https://github.com/kevisc/empiria> (`npm test`).

@@ -6,6 +6,7 @@ import { useEngine } from "./engineCtx.ts";
 import { drawNode } from "./viz.ts";
 import { download, nodeColumns, parseNumbers, toCSV } from "./io.ts";
 import { NODE_INFO } from "./info.ts";
+import { FORMULAS } from "./formulas.ts";
 
 export interface NodeData {
   id: string;
@@ -62,7 +63,7 @@ function fmtVal(sig: number[] | undefined): string {
 }
 
 export default function NodeView({ data }: NodeProps<NodeData>) {
-  const { graph, frame, deleteNode, duplicateNode } = useEngine();
+  const { graph, frame, showFormulas, deleteNode, duplicateNode } = useEngine();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [seedVer, setSeedVer] = useState(0);
   const [ctrlVer, setCtrlVer] = useState(0);
@@ -175,6 +176,16 @@ export default function NodeView({ data }: NodeProps<NodeData>) {
       )}
 
       <canvas ref={canvasRef} width={264} height={150} className="enode-canvas" />
+      {showFormulas && data.kind !== "note" && (() => {
+        const ml = FORMULAS[data.kind]?.(node);
+        return ml ? (
+          <div
+            className="enode-formula nodrag"
+            // MathML rendered natively by the browser; re-evaluated each `frame`.
+            dangerouslySetInnerHTML={{ __html: ml }}
+          />
+        ) : null;
+      })()}
       <div className="enode-blurb">{def.blurb}</div>
 
       {data.kind === "seed" ? (

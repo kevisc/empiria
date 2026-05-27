@@ -13,8 +13,9 @@ Simulation-Based Statistics Education
 
 **Running head:** EMPIRIA: SIMULATION-BASED STATISTICS
 
-**Keywords:** simulation-based inference; statistics education; sampling
-distributions; bootstrap; reproducibility; educational technology; dataflow
+**Keywords:** Teaching Statistics; simulation-based inference; statistics
+education; sampling distributions; bootstrap; reproducibility; educational
+technology; dataflow
 
 **Article type:** Article (description of an educational technology and its
 design rationale)
@@ -26,6 +27,13 @@ suite, verification materials, and lessons: <https://github.com/kevisc/empiria>.
 **Funding:** None.
 
 **Conflicts of interest:** The author declares no competing interests.
+
+**Use of AI tools:** AI-based coding assistants (large language models) were
+used as programming aids during development of the software. All statistical
+methods and numerical results were specified by the author and verified against
+independent reference implementations (R, the `boot` package, and the canonical
+Mersenne-Twister test vector), as detailed in the manuscript and the
+verification materials. The author takes full responsibility for the content.
 
 **Data availability:** This article describes a software platform rather than
 the analysis of a dataset. All supporting materials—source code, the bundled

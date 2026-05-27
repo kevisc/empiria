@@ -460,6 +460,22 @@ body,
   line-height: 1.35;
 }
 
+.enode-formula {
+  margin: 6px 0 2px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--panel-2, rgba(127, 127, 127, 0.08));
+  border: 1px solid var(--border, rgba(127, 127, 127, 0.22));
+  overflow-x: auto;
+}
+.enode-formula math {
+  font-size: 1.04em;
+  color: var(--ink, currentColor);
+}
+[data-projector="on"] .enode-formula math {
+  font-size: 1.3em;
+}
+
 .enode-controls {
   display: grid;
   grid-template-columns: 1fr 1fr;

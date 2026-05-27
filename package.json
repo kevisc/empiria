@@ -1,11 +1,12 @@
 {
   "name": "empiria-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A self-contained, browser-based dataflow canvas for simulation-based statistics education.",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
     "verify": "node scripts/verify.ts && node scripts/verify-engine.ts",
+    "benchmark": "node scripts/benchmark.ts",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",

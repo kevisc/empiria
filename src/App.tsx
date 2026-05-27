@@ -92,6 +92,7 @@ export default function App() {
   const [loadGen, setLoadGen] = useState(0);
   const [light, setLight] = useState(false);
   const [projector, setProjector] = useState(false);
+  const [showFormulas, setShowFormulas] = useState(false);
   const [tour, setTour] = useState<{ steps: LessonStep[]; i: number } | null>(null);
   const [welcomeOpen, setWelcomeOpen] = useState(
     () => !localStorage.getItem("empiria:seen-welcome"),
@@ -313,6 +314,7 @@ export default function App() {
     if (location.hash.startsWith("#p=")) {
       try {
         loadPatchObj(JSON.parse(b64decode(location.hash.slice(3))) as Patch);
+        closeWelcome(); // a shared patch link should open straight to the patch
         return;
       } catch {
         /* fall through */
@@ -367,8 +369,8 @@ export default function App() {
   }, [graph]);
 
   const ctxValue = useMemo(
-    () => ({ graph, frame, deleteNode, duplicateNode }),
-    [graph, frame, deleteNode, duplicateNode],
+    () => ({ graph, frame, showFormulas, deleteNode, duplicateNode }),
+    [graph, frame, showFormulas, deleteNode, duplicateNode],
   );
 
   return (
@@ -442,6 +444,13 @@ export default function App() {
           </button>
           <button onClick={() => setProjector((p) => !p)}>
             {projector ? "🔎 Normal" : "📽 Projector"}
+          </button>
+          <button
+            onClick={() => setShowFormulas((s) => !s)}
+            title="Show the live formula each node computes, with current values"
+            aria-pressed={showFormulas}
+          >
+            {showFormulas ? "ƒx Formulas on" : "ƒx Formulas"}
           </button>
           <span className="sep" />
           <button onClick={newPatch}>✦ New</button>

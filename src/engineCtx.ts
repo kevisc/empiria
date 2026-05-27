@@ -4,6 +4,7 @@ import type { Graph } from "./engine/graph.ts";
 export interface EngineContextValue {
   graph: Graph;
   frame: number;
+  showFormulas: boolean;
   deleteNode: (id: string) => void;
   duplicateNode: (id: string) => void;
 }
