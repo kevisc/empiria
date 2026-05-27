@@ -40,10 +40,7 @@ plausible.
 The article describes an educational technology and its design rationale; it
 does not yet report a classroom evaluation, which it states explicitly and
 frames as planned future work. The software is freely available, so reviewers
-can use it directly and inspect its source and tests. As a disclosure, AI-based
-coding assistants were used as programming aids during the software's
-development; all statistical methods and results were specified by the author
-and verified against the independent references described in the manuscript.
+can use it directly and inspect its source and tests.
 
 The manuscript is original, is not under consideration elsewhere, has a single
 author with no competing interests and no funding to declare, and has been
