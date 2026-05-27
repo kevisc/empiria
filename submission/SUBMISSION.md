@@ -22,7 +22,7 @@ minkywhales@hotmail.com.
 |---|---|
 | [`../paper.md`](../paper.md) | The manuscript (Markdown source). |
 | [`figures/`](figures/) | Figures 1–4 as separate high-resolution PNGs (also placed in the text). |
-| [`supporting_information.md`](supporting_information.md) | **Supporting Information** appendix (validation, benchmark, reproducibility, AI-use, module library, lessons) — upload as Supporting Information. Built to `.pdf`/`.docx`. |
+| [`supplementary_materials.md`](supplementary_materials.md) | **Supplementary Materials** appendix (validation, benchmark, reproducibility, AI-use, module library, lessons) — upload into the portal's Supporting Information section. Built to `.pdf`/`.docx`. |
 | [`title_page.md`](title_page.md) | Title, author, affiliation, email, corresponding author, ORCID, keywords, **Acknowledgements**, disclosures (incl. AI use) — submitted **separately** from the anonymized manuscript. |
 | [`cover_letter.md`](cover_letter.md) | Cover letter to the editor. |
 | `../VERIFICATION.md`, `../GUIDE.md` | Supporting materials reviewers may consult. |

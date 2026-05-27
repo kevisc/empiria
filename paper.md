@@ -370,11 +370,11 @@ with no installation. The live application is at
 <https://kevinschoenholzer.com/empiria/>; the source code, the automated test
 suite, the verification materials, the bundled lessons, and the documentation
 are in the public repository at <https://github.com/kevisc/empiria>. The exact
-version described here is tagged in the repository, and a snapshot of that
-version will be archived with a permanent DOI (Zenodo) upon acceptance, so that
-the reviewed software remains citable independently of later development. The
-figures in this article are screenshots of the running application; the patches
-that generate them are included among the bundled lessons.
+version described here is tagged as v2.1.0 in the repository and archived on
+Zenodo (DOI: <https://doi.org/10.5281/zenodo.20413213>), so that the reviewed
+software remains citable independently of later development. The figures in this
+article are screenshots of the running application; the patches that generate
+them are included among the bundled lessons.
 
 # Limitations and future work
 
