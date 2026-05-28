@@ -384,8 +384,16 @@ export default function App() {
           </button>
           <button
             onClick={() => {
-              runningRef.current = !runningRef.current;
+              const wasRunning = runningRef.current;
+              if (wasRunning) {
+                // Pause: complete one more tick so the freeze lands on a
+                // freshly-drawn value rather than between draws.
+                graph.tick(1);
+                accRef.current = 0;
+              }
+              runningRef.current = !wasRunning;
               setRunning(runningRef.current);
+              setFrame((f) => (f + 1) % 1_000_000);
             }}
           >
             {running ? "❚❚ Pause" : "▶ Run"}
