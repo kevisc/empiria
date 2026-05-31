@@ -6,21 +6,7 @@ date: "May 2026"
 
 # Abstract
 
-Simulation-based reasoning—building a sampling distribution empirically before
-meeting it as a formula—is now central to statistics teaching, but the
-supporting software is typically siloed: each applet addresses one concept and
-its output cannot feed the next step, so the workflow students must internalize
-stays implicit. This article describes Empiria, a free, open-source,
-browser-based environment that makes that workflow explicit by representing it
-as a composable dataflow graph: students wire small modules together with
-cables and watch every intermediate quantity update in real time—optionally
-beside the live mathematical formula each node computes. Empiria runs
-with no installation on any modern device, ships sixteen guided lessons and a
-short tour, and exports figures, data, and fully reproducible patches. Its
-closed-form routines are verified against R to machine precision and its
-randomised procedures against published reference values, so the tool is
-auditable as well as legible. It is available at
-<https://kevinschoenholzer.com/empiria/>.
+Introductory statistics is often taught through static equations and definitions delivered before the underlying quantities can be manipulated. We present Empiria, a free, open-source, browser-based environment that inverts this sequence. Drawing on the older tradition of analog computing, Empiria represents a statistical analysis as a manipulable dataflow graph. Students wire small computational modules together with cables on a canvas, and on each tick of a global clock every intermediate quantity updates in real time. The formula each module computes can be displayed alongside its visualization. Because the canvas is modular and customizable, students can extend, rewire, and rebuild an analysis rather than read it off a page. Empiria requires no installation, ships sixteen guided lessons and a tour, and exports figures, data, and reproducible patches. Its closed-form routines are verified against R to machine precision, and its randomized procedures against published reference values. Empiria is available at <https://kevinschoenholzer.com/empiria/>.
 
 **Keywords:** Teaching Statistics; simulation-based inference; statistics
 education; sampling distributions; bootstrap; reproducibility; educational
@@ -37,7 +23,7 @@ is named; the simulation-based-inference movement subsequently built curricula
 around that idea (Rossman & Chance, 2014) and reported measurable gains in
 students' reasoning about *p*-values and confidence intervals (Tintle et al.,
 2015), and the GAISE College Report codified the
-corresponding recommendations—foster active learning, use real data, integrate
+corresponding recommendations: foster active learning, use real data, integrate
 technology, and emphasize statistical thinking (American Statistical Association, 2016). A sustained research literature documents *why* this is
 hard: students struggle to form durable intuitions about sampling variability
 and the sampling distribution of an estimator, and they benefit from
@@ -55,8 +41,8 @@ single-purpose applets (for example, the *Rossman/Chance* collection and
 techniques. Each of these
 tools is effective within its domain, but each is also *self-contained*: the
 output of one cannot be piped into the next analytical step. This matters
-because the workflow students must internalize—data-generating process →
-sampling → estimation → inference → diagnostics—is exactly a *composable
+because the workflow students must internalize (data-generating process →
+sampling → estimation → inference → diagnostics) is exactly a *composable
 pipeline*, and one-applet-per-concept tools render that pipeline invisible.
 
 This article describes **Empiria**, an open-source, browser-based environment
@@ -122,10 +108,10 @@ digital computation), in which the wiring *is* the program.
 
 ![Two-sample comparison assembled on the Empiria canvas](submission/figures/twogroups.png){width=100%}
 
-**Figure 1.** A two-sample comparison assembled on the Empiria canvas. Two independent samplers—each drawing from its own population and showing a live histogram—feed a single test node that overlays the *t* reference distribution and reports the statistic and decision. The analysis is *built* as wired modules rather than invoked as a function call, so the data-generating process → sampling → estimation → inference workflow is laid out left to right with every intermediate quantity visible at once.
+**Figure 1.** A two-sample comparison assembled on the Empiria canvas. Two independent samplers, each drawing from its own population and showing a live histogram, feed a single test node that overlays the *t* reference distribution and reports the statistic and decision. The analysis is *built* as wired modules rather than invoked as a function call, so the data-generating process → sampling → estimation → inference workflow is laid out left to right with every intermediate quantity visible at once.
 
-The clock speed is adjustable from roughly one tick per second—slow enough to
-watch individual draws accumulate—to several thousand per second for rapid
+The clock speed is adjustable from roughly one tick per second (slow enough to
+watch individual draws accumulate) to several thousand per second for rapid
 convergence, with the current rate displayed. Light and dark themes, a
 large-type "projector" mode for lecture rooms, and a colorblind-safe palette
 support classroom use.
@@ -138,9 +124,9 @@ single seeded Mersenne-Twister generator (Matsumoto & Nishimura, 1998); the
 standard `Math.random` is never used, because it is neither seedable nor
 reproducible across browsers. Each stochastic node derives its own stream
 deterministically from the master seed and its node identifier, so that adding
-or removing a node does not perturb the others. A patch—the complete
+or removing a node does not perturb the others. A patch (the complete
 description of the nodes, their parameters, the wiring, and the master
-seed—serializes to a small JSON document that can be saved as a file or encoded
+seed) serializes to a small JSON document that can be saved as a file or encoded
 into a shareable URL; loading it reconstructs the simulation byte-for-byte on
 any machine. Computation is performed in IEEE-754 double precision with no
 platform-specific code paths, so a worked example is exactly reproducible
@@ -148,19 +134,14 @@ across operating systems and devices.
 
 ## Computational footprint
 
-Because Empiria runs entirely in the browser, its only requirement is a current
-browser: there is no server, and after the initial download—a single static
-bundle of roughly 0.4 MB (about 130 KB gzipped)—it runs offline. The numerical
-workload is light. On a contemporary laptop (Apple M4, single-threaded) the
-engine sustains on the order of 2.6 million ticks per second for a typical
-few-node patch and tens of thousands per second for a busy canvas of around
-sixty nodes, with memory in the tens of megabytes; the per-node cost is well
-under a microsecond and grows linearly with the number of nodes. Because the
-interactive clock is capped at a few thousand ticks per second, the on-screen
-frame rate—not the arithmetic—is the limiting factor, which leaves ample
-headroom on the low-power hardware (Chromebooks, tablets) typical of
-classrooms. The benchmark is a short script in the repository, so these figures
-can be reproduced and checked on any machine.
+Empiria runs entirely in the browser. There is no server, and after the
+initial download (a static bundle of roughly 0.4 MB, about 130 KB gzipped) it
+runs offline. The numerical workload is light: a typical patch ticks well
+above the interactive clock cap of a few thousand updates per second, so on
+the low-power hardware typical of classrooms (Chromebooks, tablets) the
+on-screen frame rate, not the arithmetic, is the limiting factor. Full
+benchmark figures and a reproducible script are in the Supplementary Materials
+(Appendix B).
 
 ## The module library
 
@@ -204,8 +185,8 @@ sample.
 **Concrete-to-abstract sequencing scaffolds inferential thinking.** Empiria's
 patch grammar lets a procedure be *enacted* before it is *symbolized*. A
 two-sample *t*-test is, in Empiria, a literal sequence of objects the student
-wires together—two samplers, a sampling-window estimator on each branch, and a
-test module that consumes both—so that when the algebraic formula is later
+wires together (two samplers, a sampling-window estimator on each branch, and a
+test module that consumes both), so that when the algebraic formula is later
 introduced, each symbol corresponds to a module the student has already
 manipulated.
 
@@ -213,15 +194,15 @@ manipulated.
 in statistics is that formulas stay inert: a student can read
 *t* = (x̄ − μ₀)/(s/√n) without connecting any symbol to something they can
 change. Empiria can render, beneath every node, the formula that node computes
-in standard mathematical notation, written as a chained equality—the symbolic
-expression, the current values substituted into it, and the result—and updated
-on every tick (Figure 2). Manipulating the patch is therefore reflected
+in standard mathematical notation, written as a chained equality (the symbolic
+expression, the current values substituted into it, and the result) that
+updates on every tick (Figure 2). Manipulating the patch is therefore reflected
 immediately in the equation: as a sample grows the student watches *s* shrink
 and the denominator *s*/√*n* shrink with it; widening the gap x̄ − μ₀ drives the
 *t*-statistic up; a Transform node shows *y* = 2·*x* + 1 evaluating a specific
-input to a specific output beside the scatter it produces. The same patch can
-thus be read two ways at once—picture-first for intuition and notation-first for
-formalism—so the symbolic layer becomes a manipulable object rather than a
+input to a specific output beside the scatter it produces. The same patch can thus
+be read two ways at once: picture-first for intuition, and notation-first for
+formalism. The symbolic layer becomes a manipulable object rather than a
 static artifact, which directly addresses the symbol-grounding gap the
 concrete-to-abstract literature identifies. Because the notation is rendered
 with the browser's native MathML, the feature adds no dependency and no
@@ -249,7 +230,8 @@ delivered as fixed applets, a student is not confined to a scripted task: a
 patch can be rewired, one distribution or estimator swapped for another, a
 parameter nudged so that the downstream consequences propagate visibly, or
 something the instructor never specified built from scratch (Figure 3). This open-ended,
-constructionist mode—understanding by building and tinkering (Papert, 1980)—is supported directly by the dataflow canvas and by the analog-computing
+constructionist mode of understanding by building and tinkering (Papert, 1980)
+is supported directly by the dataflow canvas and by the analog-computing
 intuition it inherits: a model is something one assembles from manipulable
 parts and operates, not a result one reads off. The visual immediacy of the
 per-node displays makes such exploration legible, because a change made
@@ -257,7 +239,7 @@ anywhere is immediately visible everywhere downstream.
 
 ![Building a data-generating process from interchangeable parts](submission/figures/realfit.png){width=100%}
 
-**Figure 3.** Building a data-generating process from interchangeable parts. A uniform predictor (Sample) is passed through a deterministic Transform ($y = 2x + 1$) and a Noise module before a Regress node recovers the relationship online and reports the fitted slope and intercept. Because the model is *assembled* rather than scripted, a student can swap the transform, change the amount of noise, or rewire the graph and watch every downstream view update—the build-and-tinker, analog-computing mode of working the design is meant to invite.
+**Figure 3.** Building a data-generating process from interchangeable parts. A uniform predictor (Sample) is passed through a deterministic Transform ($y = 2x + 1$) and a Noise module before a Regress node recovers the relationship online and reports the fitted slope and intercept. Because the model is *assembled* rather than scripted, a student can swap the transform, change the amount of noise, or rewire the graph and watch every downstream view update. This is the build-and-tinker, analog-computing mode of working that the design is meant to invite.
 
 These principles are operationalized in sixteen bundled lessons, each a
 self-contained worksheet consisting of a patch plus an explanatory note, and a
@@ -272,30 +254,167 @@ compare bootstrap intervals against analytic ones. What differs across
 audiences is the depth at which the underlying mathematics is examined, not the
 tool.
 
+# Teaching and learning context
+
+Empiria is designed for the practising teacher, not the developer. Because it
+runs in the browser with no installation and ships with ready-to-use lesson
+patches, the activation cost is low: opening a lesson from the menu and either
+projecting it on a screen or sharing the link is enough to start using it.
+
+**Audiences.** The tool serves three broad audiences with the same modules but
+different depth of treatment. *General-education and first quantitative
+courses* (a one-semester statistics requirement for non-majors, for example)
+can use the sampling-distribution, law-of-large-numbers, and coverage
+activities as concept-building demonstrations without dwelling on the algebra.
+*Introductory undergraduate statistics* across the social and life sciences
+builds the inferential chain (sampling, estimation, *t*-tests, confidence
+intervals, the bootstrap, regression) with the same modules students will
+later use in R or Python; the live picture serves as the intuition that the
+formal treatment then names. *Methods courses for advanced undergraduate and
+postgraduate students* use the canvas to interrogate small-sample behaviour,
+Type-I error and power, model misspecification through the Transform → Noise →
+Regress chain, and the bootstrap's coverage properties.
+
+**Modes of use.** The lessons are short enough to drop into a 50–75-minute
+class and flexible enough to support several formats:
+
+- *In-lecture demonstration* (5–15 min): the instructor opens a patch on a
+  projector and steers it through the concept; the built-in *projector* mode
+  enlarges the on-panel text for a lecture room.
+- *Computer-lab activity* (30–75 min): students each open the same lesson,
+  follow the prompts in the embedded Note, modify a parameter or two, and
+  report back.
+- *Pre-class warm-up or homework* (10–30 min): the instructor shares a patch
+  URL; students open it on a laptop, tablet, or Chromebook and bring a
+  screenshot or an answered prompt to class.
+- *Group exploration*: small groups assemble a patch from a specification
+  ("build a data-generating process whose regression slope is hidden by the
+  noise") and compare their solutions.
+
+**Pacing and preparation.** A typical activity runs 10–45 minutes in class;
+preparation for an instructor familiar with the tool is on the order of ten
+minutes per lesson, because lesson patches load with explanatory Notes and
+sensible defaults. No software installation is required on lab machines, and
+patches saved as shareable links travel as ordinary URLs. The development
+context of this article is a methods-teaching role in the social sciences (the
+author is a postdoctoral researcher at the Institute of Communication and
+Public Policy at USI), but the tool is discipline-agnostic: the same lessons
+serve any course in which sampling, inference, and regression are introduced.
+
 # Illustrative classroom use
 
-Several bundled lessons illustrate the range. A *Law of Large Numbers* activity
-wires a sampler into a growing sampling window; as the clock runs, the mean
-settles on the population value and the standard error contracts visibly. A
-*bootstrap* activity resamples a fixed dataset and draws the bootstrap
-distribution of a statistic—making the sampling distribution explicit without a
-formula—and reports a bias-corrected and accelerated interval (Efron, 1987; Hesterberg, 2015) (Figure 4). A
-*small-sample t-test* activity overlays the exact Student-*t* null distribution
-against the normal approximation, so that students see the normal mislead at
-low degrees of freedom and watch the reject/retain decision flip from sample to
-sample. A *confidence-interval coverage* activity repeats the whole experiment
-and tallies how often the interval covers the true mean, giving an operational
-meaning to "95% confidence." A *central-limit* activity shows that the means of
-batches drawn from a skewed population are themselves approximately normal. An
-*exploratory-data-analysis* activity fans one imported dataset into a summary
-table, a box plot, an empirical CDF, and a normal quantile–quantile plot, so
-that the same data are seen four ways at once. In each case the patch is
-seeded, so an instructor can distribute it, have students run it, and be
-confident that every result reproduces.
+Each bundled lesson loads as a self-contained worksheet: a patch wired on the
+canvas plus an explanatory Note that states the goal, what to look at, and
+what to try. The six lessons below show the range; for each we give the
+typical audience, the mode of use, an approximate duration, what the student
+does and observes, and the misconception or learning objective it targets.
+
+**Sampling-distribution and the law of large numbers** (general-education or
+introductory undergraduate; in-lecture demonstration or pre-class warm-up;
+10–15 minutes). A Seed feeds a Sample drawing from a Normal population into a
+Frame in growing mode, which displays the running mean and standard error. As
+the clock runs, the mean settles onto the true value and the standard error
+contracts as 1/√*n*. Students then lower the population SD or change the seed
+and re-run: the *shape* of the convergence is the same, the specific path
+differs. The activity targets the common misconception that one sample's mean
+either "is" or "is not" close to the truth, and gives students an embodied
+feel for sampling variability and the role of *n*.
+
+**What "95% confidence" really means** (introductory undergraduate or methods;
+lab or homework; 15–25 minutes). A Coverage node repeats the same experiment
+again and again: each repetition draws a fresh sample, builds a *t*-interval
+for the mean, and asks whether the true value falls inside. The display stacks
+the intervals and colours those that miss. After a few hundred repetitions the
+empirical coverage approaches the nominal 95%. The activity gives an
+operational meaning to the confidence guarantee, a property of the *procedure*
+rather than of any one interval, and directly confronts the textbook
+misreading that "there is a 95% chance the true mean is in *this* interval."
+
+**Bootstrap sampling distribution** (introductory undergraduate or methods;
+lab or homework; 20–30 minutes). A Sample drawn from a skewed (exponential)
+parent feeds a Boot node that resamples with replacement and shows the
+bootstrap distribution of the chosen statistic, annotated with its
+bias-corrected and accelerated interval (Figure 4) (Efron, 1987; Hesterberg,
+2015). Students change the statistic from mean to median to standard
+deviation, change *n* and *B*, and discuss how the bootstrap distribution
+narrows. The sampling distribution is now something a student constructed and
+watched form, rather than something a textbook names without showing.
+
+**Comparing two groups with Welch's *t*** (introductory undergraduate or
+methods; lab or homework; 25–40 minutes). Two independent Sample nodes draw
+from Normal populations with potentially different means and spreads; each
+feeds a histogram and a Test node configured for Welch's two-sample *t*
+(Figure 1). Students manipulate the group means and spreads and watch the *t*
+statistic, the *p*-value, and the reject/retain decision update. The activity
+makes the link between effect size, sample size, and decision concrete, and
+sets up a follow-up discussion of false-positive and false-negative risks.
+
+**Building a data-generating process from interchangeable parts** (methods
+seminar or advanced undergraduate; lab; 30–45 minutes). A uniform Sample is
+passed through a Transform applying *y* = *a*·*x* + *b*, then through a Noise
+module that adds normal measurement error, and finally into a Regress node
+that fits OLS online (Figure 3). Students vary *a*, *b*, and σ and watch the
+recovered slope and intercept hover near the truth while R² rises and falls.
+They then swap the Transform for a square or a sigmoid and discuss how a
+linear model behaves when the generating process is not, providing an early,
+visual introduction to the modelling assumptions students will later read about
+formally.
+
+**False positives when nothing is going on** (methods seminar or postgraduate;
+lab or homework; 15–25 minutes). Two identical Sample nodes feed a Power node
+that repeatedly runs a Welch *t* and tallies the rejection rate. With both
+populations identical, the rejection rate sits near α. Students then change α
+from 0.01 to 0.10 and watch the false-positive rate track it. The activity
+makes the meaning of "Type-I error rate" something watched rather than asserted,
+and provides natural setup for a later session on multiple-testing corrections.
+
+In each case the patch is seeded, so an instructor can distribute it, have
+students run it, and be confident that every result reproduces across
+machines. Ten further lessons in the same format cover Likert-coding, a
+mixture of two distributions, the central limit theorem from a skewed parent,
+QQ plots, exploratory data analysis on an imported CSV, and others; the full
+list is in the Supplementary Materials (Appendix F).
 
 ![Simulation made visible: a bootstrap sampling distribution](submission/figures/bootstrap.png){width=100%}
 
 **Figure 4.** Simulation made visible. A sample drawn from a skewed (exponential) parent is resampled with replacement by the Boot module, whose histogram (magenta) is the bootstrap sampling distribution of the mean, annotated with a bias-corrected and accelerated interval. The sampling distribution is *constructed* empirically and watched as it forms, before any closed-form expression is introduced.
+
+# Informal feedback and design evolution
+
+The design has been shaped by informal practitioner input gathered during
+development. Students who tried the running application, and a small set of
+colleagues teaching introductory statistics who responded to an open call for
+impressions on the tool, raised two recurring themes that influenced both the
+manuscript and the tool itself.
+
+The first theme was *applicability*: how the tool maps onto a specific
+course's teaching goals, where the example use cases sit, and how an
+instructor would weave a lesson into existing teaching. In response, the
+manuscript was rewritten to foreground a *Teaching and learning context*
+section (audiences, modes of use, pacing, preparation) and to expand
+*Illustrative classroom use* into the six detailed lesson walkthroughs above,
+each stating its intended audience, the kind of session it suits, an
+approximate duration, and the misconception or learning objective it targets.
+
+The second theme was the *activation cost* of a node-and-cable interface for
+first-time users: how to get started, where to look, what to try first. In
+response, the application gained a short *guided tour* that walks a new user
+through the Law of Large Numbers, the bootstrap, the *t*-test, and
+confidence-interval coverage in four steps, lowering the cost of engagement
+for instructors and students encountering the canvas for the first time.
+Other recurring observations included appreciation for the live visual
+feedback as an alternative pathway into statistical ideas, and for the live
+mathematical-notation view (Figure 2) for its balance of mathematical rigor
+and a playful, manipulable mode of working.
+
+We treat this informal input as *design evidence*: it has shaped the tool and
+the manuscript, and explaining how is part of the article's transparency.
+Because the feedback was solicited as service-improvement input on the tool
+rather than as human-subjects research, no identifying or quantified data are
+collected or reported here, and observations are presented in aggregate,
+thematic form only. We do not present these themes as evidence of learning
+outcomes; that is a separate question, taken up in *Limitations and future
+work*.
 
 # Numerical correctness and reproducibility
 
@@ -312,12 +431,12 @@ exact *t* quantile rather than the *z* ≈ 1.96 approximation; and bootstrap
 intervals are bias-corrected and accelerated (Efron, 1987).
 
 These routines are checked by an automated test suite that compares each result
-against R to machine precision—covering the incomplete beta and gamma
+against R to machine precision, covering the incomplete beta and gamma
 functions, Student-*t* probabilities and critical values, the normal CDF and
 quantile, one-sample and Welch two-sample *t*-tests, ordinary least squares,
 the contingency-table χ² and Cramér's V, autocorrelation, and the descriptive
-moments—and against the canonical Mersenne-Twister test vector for the
-generator. The suite also verifies system-level properties: byte-identical
+moments. The Mersenne-Twister generator is checked against its canonical test
+vector. The suite also verifies system-level properties: byte-identical
 reproduction under a fixed seed, the contraction of the standard error under
 the Law of Large Numbers, approximately nominal (95%) confidence-interval
 coverage, and a Type-I error rate near α under the null. An accompanying R
@@ -342,11 +461,11 @@ provenance of the code that produces them; it rests on an external verification
 regime that is independent of how the code was written.
 
 Concretely, every numerical routine is checked against an authoritative
-reference implementation—R's statistical functions (`pt`, `qt`, `pchisq`,
+reference implementation: R's statistical functions (`pt`, `qt`, `pchisq`,
 `pnorm`, `qnorm`, `t.test`, `lm`, `chisq.test`, `acf`, `quantile`), the `boot`
-package for the BCa interval, and the canonical Mersenne-Twister test
-vector—to machine precision, with Monte-Carlo tolerances stated explicitly
-where resampling is involved. Those reference values are produced by an
+package for the BCa interval, and the canonical Mersenne-Twister test vector.
+Agreement is to machine precision, with Monte-Carlo tolerances stated
+explicitly where resampling is involved. Those reference values are produced by an
 independent R script that a reviewer can rerun and compare against the literals
 asserted in the test suite, so the check confirms the reference values
 themselves rather than only the tool's internal self-consistency. A test that
@@ -392,21 +511,27 @@ evidence of learning gains from Empiria itself: the pedagogical claims above are
 design rationale, grounded in prior findings about related tools, and whether
 they translate into measurable outcomes is an open empirical question. Reviews
 of simulation tools are a useful corrective here: interactive visualization
-does not by itself guarantee understanding—students can watch a sampling
+does not by itself guarantee understanding: students can watch a sampling
 distribution narrow and still misread it as a distribution of individual
-values—so the surrounding tasks and design details do much of the work (Gok &
+values. The surrounding tasks and design details do much of the work (Gok &
 Goldstone, 2024). The affordances are available to instructors and students
 today, but their educational value remains to be demonstrated.
 
-A formal study of classroom learning outcomes is the natural next step, and one
-we have not yet carried out. We are designing a within-instructor,
-between-section comparison in an introductory course—contrasting an
-Empiria-augmented condition against a matched condition that uses comparable
-static and applet-based visualizations, with sampling-variability and inference
-subscales of a validated assessment, together with a transfer task, as
-outcomes, to test whether these affordances translate into measurable gains.
-That study will be pre-registered, with its hypotheses and analysis plan
-deposited before any data are collected.
+A formal evaluation of learning outcomes is a possible future extension, but
+we have not undertaken one. Empiria has not been studied in a classroom or
+experimental setting, and we therefore make no claim about its effect on
+student understanding, retention, or transfer. What we can claim, and what we
+have tried to ensure, is that the tool has been shaped toward concrete
+learning goals and the practitioner needs articulated during its development
+(reported above in *Informal feedback and design evolution*), and that its
+numerical outputs are correct and independently verifiable: closed-form
+routines checked against R to machine precision, the bootstrap validated by
+its coverage behavior, and an automated test suite that any reviewer can
+rerun in minutes (full detail in *Numerical correctness and reproducibility* and the
+Supplementary Materials). What an instructor needs in order to trust the
+numbers Empiria displays is therefore on offer; what would be needed to claim
+that an Empiria-augmented lesson moves a learning-outcome measure is a
+controlled study, which we leave to future work.
 
 Two practical considerations are worth noting for adopters. Because a
 node-and-cable interface is initially unfamiliar, the bundled guided tour and
@@ -422,8 +547,8 @@ implementation.
 # Conclusion
 
 Empiria operationalizes the central recommendation of the statistics-education
-reform literature—that students build the sampling distribution before they
-name it—by making the inferential workflow a composable, manipulable object
+reform literature (that students build the sampling distribution before they
+name it) by making the inferential workflow a composable, manipulable object
 rather than a sequence of disconnected applets. By pairing that interaction
 model with exact, independently auditable numerics and reproducible, shareable
 patches, it aims to be trustworthy as well as legible: a tool a student can
@@ -432,8 +557,11 @@ learn from and an instructor can verify.
 # Disclosure statement
 
 The author reports no competing interests. No funding supported this work.
-AI-based coding assistants (large language models) were used as programming
-aids during development of the software. All statistical methods and numerical
+The informal practitioner feedback referenced in this article was solicited as
+service-improvement input on the tool rather than as human-subjects research;
+no identifying information was collected, and observations are reported in
+aggregate, thematic form only. AI-based coding assistants (large language
+models) were used as programming aids during development of the software. All statistical methods and numerical
 results were specified by the author and verified against independent reference
 implementations, as described in *Numerical correctness and reproducibility*;
 the author takes full responsibility for the content of the software and the
